@@ -12,7 +12,8 @@ const data = require('./data')
 // const style=()=>{
 //   return src('src/assets/styles/*.scss',{base:'src'})
 //   .pipe(plugins.sass({outputStyle:'expanded'}))
-//   .pipe(dest('dist'))
+//   .pipe(dest('temp'))
+//   .pipe(bs.reload({stream:true}))
 // }
 
 const script = () => {
@@ -20,7 +21,7 @@ const script = () => {
     src('src/assets/scripts/*.js', { base: 'src' })
       // 编译脚本文件, 需要指定 presets, 否则不会对 ECMAScript 新特性进行转化
       .pipe(plugins.babel({ presets: ['@babel/preset-env'] }))
-      .pipe(dest('dist'))
+      .pipe(dest('temp'))
   )
 }
 
@@ -29,12 +30,12 @@ const page = () => {
     src('src/**/*.html', { base: 'src' })
       // 编译脚本文件, 需要指定 presets, 否则不会对 ECMAScript 新特性进行转化
       .pipe(plugins.swig({ data: data }))
-      .pipe(dest('dist'))
+      .pipe(dest('temp'))
   )
 }
 
 const image = () => {
-  return src('src/assets/images/**', { base: 'src' })
+  return src('src/assets/images/*.png', { base: 'src' })
     .pipe(plugins.imagemin())
     .pipe(dest('dist'))
 }
@@ -50,7 +51,7 @@ const extra = () => {
 }
 
 const clean = () => {
-  return del(['dist'])
+  return del(['dist', 'temp'])
 }
 // const compile=parallel(
 //   // style,  报错，先放弃
@@ -66,9 +67,9 @@ const serve = () => {
   bs.init({
     notify: false,
     port: 3000,
-    files: 'dist/**',
+    // files: 'dist/**',
     server: {
-      baseDir: ['dist', 'src', 'public'], //r
+      baseDir: ['temp', 'src', 'public'], //r
       routes: {
         '/node_modules': 'node_modules'
       }
@@ -76,27 +77,40 @@ const serve = () => {
   })
 }
 const useref = () => {
-  return src('dist/*.html', { base: 'dist' })
-    // searchPath: 在哪里寻找需要合并的文件（根据资源引用的起始路径）
-    .pipe(plugins.useref({ searchPath: ['dist', '.'] }))
-    .pipe(plugins.if(/\.js$/,plugins.uglify()))
-    .pipe(plugins.if(/\.css$/,plugins.cleanCss()))
-    .pipe(plugins.if(/\.html$/,plugins.htmlmin({
-      collapseWhitespace: true, // 折叠(去掉)空白符和换行符
-      // minifyCSS: true, // 压缩html文件中的 css样式
-      // minufyJS: true, // 压缩 html文件的 js文件
-    })))
-    .pipe(dest('release'))
+  return (
+    src('temp/*.html', { base: 'temp' })
+      // searchPath: 在哪里寻找需要合并的文件（根据资源引用的起始路径）
+      .pipe(plugins.useref({ searchPath: ['temp', '.'] }))
+      .pipe(plugins.if(/\.js$/, plugins.uglify()))
+      .pipe(plugins.if(/\.css$/, plugins.cleanCss()))
+      .pipe(
+        plugins.if(
+          /\.html$/,
+          plugins.htmlmin({
+            collapseWhitespace: true, // 折叠(去掉)空白符和换行符
+            minifyCSS: true, // 压缩html文件中的 css样式
+            minufyJS: true, // 压缩 html文件的 js文件
+          })
+        )
+      )
+      .pipe(dest('dist'))
+  )
 }
-const compile = parallel(script, page, image, font)
+const compile = parallel(script, page)
 
 // const build=parallel(compile,extra)
-const build = series(clean, parallel(compile, extra))
+const build = series(
+  clean,
+  parallel(
+    series(compile, useref), 
+    font, 
+    image,
+    extra
+    )
+)
 const develop = series(compile, serve)
 module.exports = {
-  compile,
+  clean,
   build,
-  serve,
   develop,
-  useref
 }
