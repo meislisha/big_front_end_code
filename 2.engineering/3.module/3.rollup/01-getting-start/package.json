@@ -1,0 +1,12 @@
+{
+  "name": "01-getting-start",
+  "version": "1.0.0",
+  "description": "rollup",
+  "main": "index.js",
+  "keywords": [],
+  "author": "jiabin",
+  "license": "ISC",
+  "devDependencies": {
+    "rollup": "^2.23.1"
+  }
+}
