@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      class EventBus {
+        constructor(){
+          this.subs=Object.create(null)
+        }
+        $on(type,handler){
+          this.subs[type]=this.subs[type]||[]
+          this.subs[type].push(handler)
+        }
+        $emit(type){
+          this.subs[type].forEach(handler => {
+            handler()
+          });
+        }
+      }
+      var bus=new EventBus()
+      bus.$on('click',function(){
+        console.log('click');
+      })
+      bus.$on('click',function(){
+        console.log('click1');
+      })
+      bus.$emit('click')
+    </script>
+  </body>
+</html>

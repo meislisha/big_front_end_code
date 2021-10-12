@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">lisha</div>
+</body>
+<script>
+  let data={
+    msg:'lisha'
+  }
+  let vm={}
+  Object.defineProperty(vm,'msg',{
+    enumerable:true,
+    configurable:true,
+    get(){
+      console.log(`get ${data.msg}`)
+    },
+    set(val){
+      if(val===data.msg) return
+      data.msg=val
+      console.log('set msg',val);
+      document.getElementById('app').innerHTML=val
+    } 
+  })
+  vm.msg='hello workd'
+  console.log(vm.msg);
+</script>
+</html>
