@@ -30,8 +30,20 @@ class Compiler {
         const key = attr.value
 
         this.update(node, key, attrName)
+        if(this.isEventDirective(attrname)){
+          this.eventHandler(node,this.vm,attrname,key)
+        }
       }
     })
+  }
+  isEventDirective(attrName){
+    return attrName.indexOf('on')==='0'
+  }
+  eventHandler(node,vm,attrname,key){
+    let eventType=attrName.substr(attrname.indexOf(':')+1)
+    let fn=this.vm.$options.methods&&this.vm.$options.methods[fnname]
+    fn&&node.addEventListener(eventType,fn.bind(this.vm))
+
   }
   update(node,key,attrname){
     let fn=this[attrname+'Updater']

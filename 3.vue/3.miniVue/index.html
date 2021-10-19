@@ -16,6 +16,7 @@
     <h1>v-model</h1>
     <input type="text" v-model="msg">
     <input type="text" v-model="count">
+    <input type="text" type="button" v-on:click="handler" value="按钮">
     <script src="./js/dep.js"></script>
     <script src="./js/watcher.js"></script>
     <script src="./js/compiler.js"></script>
@@ -32,6 +33,9 @@
           }
         }
       })
+      function handler(){
+        console.log(999)
+      }
       console.log(vm);
     </script>
   </div>
